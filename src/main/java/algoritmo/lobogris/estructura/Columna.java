@@ -18,6 +18,14 @@ public class Columna {
         this.probabilidadEleccion = Math.random();
     }
 
+    public Columna(Columna otro) {
+        this.nombreColumna = otro.getNombreColumna();
+        this.tupla = otro.getTupla();
+        this.frecuenciaUso = otro.getFrecuenciaUso();
+        this.cantidadBits = otro.getCantidadBits();
+        this.probabilidadEleccion = otro.getProbabilidadEleccion();
+    }
+
     public String getNombreColumna() {
         return nombreColumna;
     }
@@ -70,4 +78,5 @@ public class Columna {
     public void setProbabilidadEleccion() {
         this.probabilidadEleccion = Math.random();
     }
+
 }
