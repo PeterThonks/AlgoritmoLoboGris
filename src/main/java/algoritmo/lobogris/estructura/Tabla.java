@@ -34,4 +34,8 @@ public class Tabla {
     public void setCantidadFilas(int cantidadFilas) {
         this.cantidadFilas = cantidadFilas;
     }
+
+    public void printTabla(){
+        System.out.println("Tabla " + this.nombreTabla + " n° " + this.numeroTabla + " con " + this.cantidadFilas + " filas.");
+    }
 }

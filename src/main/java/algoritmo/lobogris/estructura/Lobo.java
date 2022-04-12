@@ -1,8 +1,5 @@
 package algoritmo.lobogris.estructura;
 
-import algoritmo.lobogris.estructura.Columna;
-import algoritmo.lobogris.estructura.Tabla;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,13 +12,14 @@ public class Lobo implements Comparable<Lobo> {
     private List<Columna> columnas;
     private List<Columna> columnasSeleccionadas;
     private double fitness;
+    private String createIndexSyntax;
 
     public Lobo(String querys, List<Columna> columnasSeleccionadas) {
         this.querys = querys;
-        for(Columna col : columnas){
-            col.setProbabilidadEleccion();
+        for(int i=0; i<columnasSeleccionadas.size(); i++){
+            columnasSeleccionadas.get(i).setProbabilidadEleccion();
         }
-        this.columnas = columnas;
+        this.columnas = columnasSeleccionadas;
     }
 
     public Lobo(Lobo otro) {
@@ -55,25 +53,81 @@ public class Lobo implements Comparable<Lobo> {
         return tiempoEjecucion;
     }
 
+    public String getCreateIndexSyntax() {
+        return createIndexSyntax;
+    }
+
     public void setTiempoEjecucion(List<Tabla> tablas) {
-        String connectionUrl = "jdbc:mysql://localhost:3306/lobogris?serverTimezone=UTC", createIndexSyntax = "", dropIndexSyntax = "";
+        String connectionUrl = "jdbc:mysql://localhost:3306/lobogris?serverTimezone=UTC", createIndexSyntax = "", dropIndexSyntax = "", checkExistance = "";
         double startTime, endTime = 0;
+        //Crear sintaxis de índice
+        String indexName, indexColumns, queryOriginal = this.querys;
+        for (int i=0; i<tablas.size(); i++){
+            indexName = "IX_";
+            indexColumns = "";
+            for(Columna col : this.columnasSeleccionadas){
+                if(i + 1 == col.getTuplaTabla()){
+                    indexName += col.getNombreColumna() + "_";
+                    indexColumns += col.getNombreColumna() + ", ";
+                }
+            }
+            if (indexName != "IX_"){
+                indexName = indexName.substring(0, indexName.length() - 1);
+                indexColumns = indexColumns.substring(0, indexColumns.length() - 2);
+                createIndexSyntax += "CREATE INDEX " + indexName + " ON " + tablas.get(i).getNombreTabla() + " (" + indexColumns + ");";
+                dropIndexSyntax += "DROP INDEX " + indexName + " ON " + tablas.get(i).getNombreTabla() + ";";
+                checkExistance += "SELECT 1 FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = 'lobogris' " +
+                        "AND TABLE_NAME='" + tablas.get(i).getNombreTabla().toLowerCase().replaceAll("[^a-zA-Z0-9]", "") + "' " +
+                        "AND INDEX_NAME='" + indexName + "';";
+                //Forzar usar index en query
+                String[] querys = this.querys.split(";");
+                for (int j = 0; j<querys.length; j++){
+                    String q = querys[j].trim().toLowerCase();
+                    String tableName = tablas.get(i).getNombreTabla().toLowerCase();
+                    if (q.contains(tableName)){
+                        tableName = " " + tableName + " ";
+                        int index = q.indexOf(tableName);
+                        index += tableName.length();
+                        q = new StringBuilder(q).insert(index, " use index (" + indexName + ") ").toString();
+                        querys[j] = q;
+                    }
+                }
+                this.querys = String.join(";", querys);
+            }
+        }
+        this.createIndexSyntax = createIndexSyntax;
+        //Correr querys
         try (Connection conn = DriverManager.getConnection(connectionUrl, "root", "Lobogris22-1")) {
             Statement stmt = conn.createStatement();
-            this.createIndex(tablas, createIndexSyntax, dropIndexSyntax);
-            stmt.execute(createIndexSyntax);
-            System.out.println("Índice creado");
+            String[] checkIndex = checkExistance.split(";");
+            String[] createIndex = createIndexSyntax.split(";");
+            for (int i = 0; i<createIndex.length; i++){
+                ResultSet rs = stmt.executeQuery(checkIndex[i].trim());
+                rs.last();
+                if (rs.getRow()==0){
+                    stmt.execute(createIndex[i].trim());
+//                    System.out.println("Índice creado");
+                }
+            }
+            //Solo se cuenta el tiempo de la tercera ejecución
+            stmt.execute(this.querys);
+            stmt.execute(this.querys);
             startTime = System.nanoTime();
             stmt.execute(this.querys);
             endTime = (System.nanoTime() - startTime)/1000000000;
-            System.out.println("Querys ejecutados");
-            stmt.execute(dropIndexSyntax);
-            System.out.println("Índice dropeado");
-
+            this.tiempoEjecucion = endTime;
+            this.querys = queryOriginal;
+//            System.out.println("Querys ejecutados");
+            String[] dropIndex = dropIndexSyntax.split(";");
+            for (int i = 0; i<dropIndex.length; i++){
+                stmt.execute(dropIndex[i]);
+//                System.out.println("Índice dropeado");
+            }
         } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
+            if (!ex.getMessage().contains("needed in a foreign key constraint")){
+                System.out.println(ex.getMessage());
+            }
         }
-        this.tiempoEjecucion = endTime;
     }
 
     public double getEspacio() {
@@ -87,7 +141,7 @@ public class Lobo implements Comparable<Lobo> {
             espTab = 0;
             for(Columna col : this.columnasSeleccionadas){
                 if(i + 1 == col.getTuplaTabla()){
-                    espTab += col.getCantidadBits();
+                    espTab += col.getCantidadBytes();
                 }
             }
             if(espTab != 0){
@@ -148,29 +202,13 @@ public class Lobo implements Comparable<Lobo> {
             this.setFrecuenciaTotal();
             this.setTiempoEjecucion(tablas);
 
-            double fit = this.tiempoEjecucion * (1 + alpha * 1 / this.frecuenciaTotal) * (1 + beta * this.espacio / eDisp);
+            double factorFrecuencia, factorEspacio = (1 + beta * this.espacio / eDisp);
+            if (this.frecuenciaTotal == 0)
+                factorFrecuencia = 1;
+            else
+                factorFrecuencia = (1 + alpha * 1 / this.frecuenciaTotal);
+            double fit = this.tiempoEjecucion * factorFrecuencia * factorEspacio;
             this.fitness = fit;
-        }
-    }
-
-    public void createIndex(List<Tabla> tablas, String createIndexSyntax, String dropIndexSyntax) {
-        String indexName, indexColumns;
-        List<Columna> colSelect = new ArrayList<>();
-        createIndexSyntax = "";
-        dropIndexSyntax = "";
-        for (int i=0; i<tablas.size(); i++){
-            indexName = "IX_";
-            indexColumns = "";
-            for(Columna col : this.columnasSeleccionadas){
-                if(i + 1 == col.getTuplaTabla()){
-                    indexName += col.getNombreColumna() + "_";
-                    indexColumns += col.getNombreColumna() + ", ";
-                }
-            }
-            indexName.substring(0, indexName.length() - 2);
-            indexColumns.substring(0, indexColumns.length() - 3);
-            createIndexSyntax += "CREATE INDEX " + indexName + " ON " + tablas.get(i).getNombreTabla() + " (" + indexColumns + ");";
-            dropIndexSyntax += "DROP INDEX " + indexName + " ON " + tablas.get(i).getNombreTabla() + ";";
         }
     }
 
@@ -184,9 +222,14 @@ public class Lobo implements Comparable<Lobo> {
         this.fitness = 0;
     }
 
-    public Boolean esValido (List<Lobo> poblacion, double alpha, double beta, double eDisp, List<Tabla> tablas){
+    public Boolean esValido (List<Lobo> poblacion, double eDisp, List<Tabla> tablas){
         Boolean flagValido = true;
         this.setColumnasSeleccionadas();
+
+        if (this.columnasSeleccionadas.size() == 0){
+            flagValido = false;
+            return flagValido;
+        }
 
         //Cantidad de índices por tabla
         int[] indiceTablas = new int[tablas.size()];
@@ -236,7 +279,7 @@ public class Lobo implements Comparable<Lobo> {
             }
         }
 
-        this.setFitness(tablas, alpha, beta, eDisp);
+        this.setEspacio(tablas);
 
         //Espacio total
         if (this.espacio >= eDisp){
@@ -249,7 +292,15 @@ public class Lobo implements Comparable<Lobo> {
 
     @Override
     public int compareTo(Lobo o) {
-        return (int)(this.getFitness() - o.getFitness());
+        if (this.getFitness() > o.getFitness()){
+            return 1;
+        }
+        else if (this.getFitness() < o.getFitness()){
+            return -1;
+        }
+        else {
+            return 0;
+        }
     }
 
 }

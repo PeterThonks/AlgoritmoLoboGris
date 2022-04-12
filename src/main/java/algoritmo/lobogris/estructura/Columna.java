@@ -4,17 +4,16 @@ import org.javatuples.Pair;
 
 public class Columna {
     private String nombreColumna;
-    private Pair<Integer, Integer> tupla = new Pair<>(0,0);
+    private Pair<Integer, Integer> tupla;
     private double frecuenciaUso;
-    private int cantidadBits;
+    private long cantidadBytes;
     private double probabilidadEleccion;
 
-    public Columna(String nombreColumna, int tabla, int columna, double frecuenciaUso, int cantidadBits) {
+    public Columna(String nombreColumna, int tabla, int columna, double frecuenciaUso, long cantidadBytes) {
         this.nombreColumna = nombreColumna;
-        this.tupla.setAt0(tabla);
-        this.tupla.setAt1(columna);
+        this.tupla = new Pair<>(tabla,columna);
         this.frecuenciaUso = frecuenciaUso;
-        this.cantidadBits = cantidadBits;
+        this.cantidadBytes = cantidadBytes;
         this.probabilidadEleccion = Math.random();
     }
 
@@ -22,7 +21,7 @@ public class Columna {
         this.nombreColumna = otro.getNombreColumna();
         this.tupla = otro.getTupla();
         this.frecuenciaUso = otro.getFrecuenciaUso();
-        this.cantidadBits = otro.getCantidadBits();
+        this.cantidadBytes = otro.getCantidadBytes();
         this.probabilidadEleccion = otro.getProbabilidadEleccion();
     }
 
@@ -59,12 +58,12 @@ public class Columna {
         this.frecuenciaUso = frecuenciaUso;
     }
 
-    public int getCantidadBits() {
-        return cantidadBits;
+    public long getCantidadBytes() {
+        return cantidadBytes;
     }
 
-    public void setCantidadBits(int cantidadBits) {
-        this.cantidadBits = cantidadBits;
+    public void setCantidadBytes(int cantidadBytes) {
+        this.cantidadBytes = cantidadBytes;
     }
 
     public double getProbabilidadEleccion() {
@@ -79,4 +78,8 @@ public class Columna {
         this.probabilidadEleccion = Math.random();
     }
 
+    public void printColumna(){
+        System.out.println("Columna " + this.nombreColumna + " n° " + this.tupla + " con frecuencia " + this.frecuenciaUso
+                + ", cantidad de bytes " + this.cantidadBytes + " y probabilidad de elección de " + this.probabilidadEleccion);
+    }
 }

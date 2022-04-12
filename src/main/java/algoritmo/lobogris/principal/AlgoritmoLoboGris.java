@@ -1,39 +1,37 @@
 package algoritmo.lobogris.principal;
 
-import net.sf.jsqlparser.JSQLParserException;
-import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.parser.CCJSqlParserDefaultVisitor;
-import net.sf.jsqlparser.parser.CCJSqlParserTreeConstants;
-import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import net.sf.jsqlparser.schema.Column;
-import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.statement.select.FromItem;
-import net.sf.jsqlparser.statement.select.Join;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.util.TablesNamesFinder;
 
-import java.util.List;
+import algoritmo.lobogris.auxiliar.Lector;
+import algoritmo.shared.util.Constante;
+
+import java.nio.file.Path;
 
 public class AlgoritmoLoboGris {
     public static void main(String[] args) {
-        String selectSQL = "SELECT Categories.CategoryName, \n" +
-                "       Products.ProductName, \n" +
-                "       Sum((`Order Details`.UnitPrice*Quantity*(1-Discount)/100)*100) AS ProductSales\n" +
-                "FROM Categories C\n" +
-                "  INNER JOIN Products On Categories.CategoryID = Products.CategoryID\n" +
-                "  INNER JOIN `Order Details` on Products.ProductID = `Order Details`.ProductID     \n" +
-                "  INNER JOIN `Orders` on Orders.OrderID = `Order Details`.OrderID \n" +
-                "WHERE Orders.ShippedDate Between '1997-01-01' And '1997-12-31'\n" +
-                "GROUP BY Categories.CategoryName, Products.ProductName;";
+        String filenameTablas = "tablas_mysql.csv", filenameColumnas = "columnas_mysql.csv", filenameQuery = "Query.sql";
 
-        try {
-            Statement select = (Statement) CCJSqlParserUtil.parse(selectSQL);
-            FromItem item = ((PlainSelect) ((Select) select).getSelectBody()).get();
-            System.out.println(item);
+        Lector lector = new Lector(Constante.PATH_INPUT_CSV + filenameTablas,
+                Constante.PATH_INPUT_CSV + filenameColumnas,
+                Path.of(Constante.PATH_INPUT_CSV + filenameQuery));
+        lector.leerArchivos();
 
-        } catch (JSQLParserException e) {
-            e.printStackTrace();
+        int tamanoPoblacion = 20, t = 1, maxIter = 500;
+        double alpha = 1, beta = 0.5, eDisp = 1000000, a, startTime, endTime;
+        startTime = System.nanoTime();
+        Poblacion poblacion = new Poblacion(tamanoPoblacion);
+        poblacion.crearPoblacion(lector, eDisp);
+        poblacion.seleccionarTresMejoresSoluciones(lector, alpha, beta, eDisp);
+        while (t <= maxIter){
+            System.out.println("Iteración n°"+t);
+            a = 2 * (1 - t/maxIter);
+            poblacion.actualizarPosicion(a, lector, alpha, beta, eDisp);
+            poblacion.seleccionarTresMejoresSoluciones(lector, alpha, beta, eDisp);
+            t++;
         }
+        poblacion.printMejorSolucion();
+        endTime = (System.nanoTime() - startTime)/1000000000;
+        System.out.println("Bueeeena");
+        System.out.println("Tiempo total: " + endTime + " segundos.");
+
     }
 }
