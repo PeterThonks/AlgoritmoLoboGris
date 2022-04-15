@@ -20,8 +20,12 @@ public class Poblacion {
         this.tamanoPoblacion = tamanoPoblacion;
     }
 
+    public Lobo getAlphaWolf() {
+        return alphaWolf;
+    }
+
     public void crearPoblacion(Lector lector, double eDisp){
-        List<Columna> columnasSel = lector.obtenerColumnas();
+        List<Columna> columnasSel = lector.getColumnasQuery();
         int cont = 0;
         List<Lobo> p = new ArrayList<>();
         while (cont < this.tamanoPoblacion){
@@ -35,8 +39,12 @@ public class Poblacion {
     }
 
     public void seleccionarTresMejoresSoluciones(Lector lector, double alpha, double beta, double eDisp){
+        System.out.println("Mejores lobos");
         for (int i = 0; i<this.poblacion.size(); i++){
-            this.poblacion.get(i).setFitness(lector.getTablas(), alpha, beta, eDisp);
+            if (this.poblacion.get(i).getFitness() == 1000000000){
+                System.out.println("ML Lobo n°" + i);
+                this.poblacion.get(i).setFitness(lector.getTablas(), alpha, beta, eDisp);
+            }
         }
 
         Collections.sort(this.poblacion);
@@ -66,9 +74,9 @@ public class Poblacion {
                     X3[j] = this.gammaWolf.getColumnas().get(j).getProbabilidadEleccion() -
                             A3 * Math.abs(C3 * this.gammaWolf.getColumnas().get(j).getProbabilidadEleccion() -
                                     this.poblacion.get(i).getColumnas().get(j).getProbabilidadEleccion());
-                    X1[j] = Math.min(Math.max(X1[j], 0), 1);
-                    X2[j] = Math.min(Math.max(X2[j], 0), 1);
-                    X3[j] = Math.min(Math.max(X3[j], 0), 1);
+//                    X1[j] = Math.min(Math.max(X1[j], 0), 1);
+//                    X2[j] = Math.min(Math.max(X2[j], 0), 1);
+//                    X3[j] = Math.min(Math.max(X3[j], 0), 1);
                     XNuevo[j] += X1[j] + X2[j] + X3[j];
                 }
                 for (int j = 0; j<cantCols; j++){

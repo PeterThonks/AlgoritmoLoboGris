@@ -8,13 +8,17 @@ public class Columna {
     private double frecuenciaUso;
     private long cantidadBytes;
     private double probabilidadEleccion;
+    private float penalidad;
+    private boolean esPk;
 
-    public Columna(String nombreColumna, int tabla, int columna, double frecuenciaUso, long cantidadBytes) {
+    public Columna(String nombreColumna, int tabla, int columna, double frecuenciaUso, long cantidadBytes, boolean esPk) {
         this.nombreColumna = nombreColumna;
         this.tupla = new Pair<>(tabla,columna);
         this.frecuenciaUso = frecuenciaUso;
         this.cantidadBytes = cantidadBytes;
         this.probabilidadEleccion = Math.random();
+        this.penalidad = 1;
+        this.esPk = esPk;
     }
 
     public Columna(Columna otro) {
@@ -23,6 +27,8 @@ public class Columna {
         this.frecuenciaUso = otro.getFrecuenciaUso();
         this.cantidadBytes = otro.getCantidadBytes();
         this.probabilidadEleccion = otro.getProbabilidadEleccion();
+        this.penalidad = otro.getPenalidad();
+        this.esPk = otro.isEsPk();
     }
 
     public String getNombreColumna() {
@@ -46,8 +52,7 @@ public class Columna {
     }
 
     public void setTupla(int tabla, int columna) {
-        this.tupla.setAt0(tabla);
-        this.tupla.setAt1(columna);
+        this.tupla = new Pair<>(tabla,columna);
     }
 
     public double getFrecuenciaUso() {
@@ -78,8 +83,25 @@ public class Columna {
         this.probabilidadEleccion = Math.random();
     }
 
+    public float getPenalidad() {
+        return penalidad;
+    }
+
+    public void setPenalidad(float penalidad) {
+        this.penalidad = penalidad;
+    }
+
+    public boolean isEsPk() {
+        return esPk;
+    }
+
+    public void setEsPk(boolean esPk) {
+        this.esPk = esPk;
+    }
+
     public void printColumna(){
         System.out.println("Columna " + this.nombreColumna + " n° " + this.tupla + " con frecuencia " + this.frecuenciaUso
-                + ", cantidad de bytes " + this.cantidadBytes + " y probabilidad de elección de " + this.probabilidadEleccion);
+                + ", cantidad de bytes " + this.cantidadBytes + ", probabilidad de elección de " + this.probabilidadEleccion
+                + ", penalidad de " + this.penalidad + " y " + (this.esPk ? "sí" : "no") + " es PK");
     }
 }

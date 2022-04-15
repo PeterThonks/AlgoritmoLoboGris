@@ -1,7 +1,10 @@
 package algoritmo.lobogris.estructura;
 
+import org.javatuples.Pair;
+
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Lobo implements Comparable<Lobo> {
@@ -9,6 +12,7 @@ public class Lobo implements Comparable<Lobo> {
     private double tiempoEjecucion;
     private double espacio;
     private double frecuenciaTotal;
+    private double penalidadTotal;
     private List<Columna> columnas;
     private List<Columna> columnasSeleccionadas;
     private double fitness;
@@ -20,6 +24,7 @@ public class Lobo implements Comparable<Lobo> {
             columnasSeleccionadas.get(i).setProbabilidadEleccion();
         }
         this.columnas = columnasSeleccionadas;
+        this.fitness = 1000000000;
     }
 
     public Lobo(Lobo otro) {
@@ -27,6 +32,7 @@ public class Lobo implements Comparable<Lobo> {
         this.tiempoEjecucion = otro.tiempoEjecucion;
         this.espacio = otro.espacio;
         this.frecuenciaTotal = otro.frecuenciaTotal;
+        this.penalidadTotal = otro.penalidadTotal;
         this.fitness = otro.fitness;
 
         List<Columna> copyList = new ArrayList<>();
@@ -58,7 +64,7 @@ public class Lobo implements Comparable<Lobo> {
     }
 
     public void setTiempoEjecucion(List<Tabla> tablas) {
-        String connectionUrl = "jdbc:mysql://localhost:3306/lobogris?serverTimezone=UTC", createIndexSyntax = "", dropIndexSyntax = "", checkExistance = "";
+        String connectionUrl = "jdbc:mysql://localhost:3306/northwind?serverTimezone=UTC", createIndexSyntax = "", dropIndexSyntax = "", checkExistance = "";
         double startTime, endTime = 0;
         //Crear sintaxis de índice
         String indexName, indexColumns, queryOriginal = this.querys;
@@ -76,7 +82,7 @@ public class Lobo implements Comparable<Lobo> {
                 indexColumns = indexColumns.substring(0, indexColumns.length() - 2);
                 createIndexSyntax += "CREATE INDEX " + indexName + " ON " + tablas.get(i).getNombreTabla() + " (" + indexColumns + ");";
                 dropIndexSyntax += "DROP INDEX " + indexName + " ON " + tablas.get(i).getNombreTabla() + ";";
-                checkExistance += "SELECT 1 FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = 'lobogris' " +
+                checkExistance += "SELECT 1 FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = 'northwind' " +
                         "AND TABLE_NAME='" + tablas.get(i).getNombreTabla().toLowerCase().replaceAll("[^a-zA-Z0-9]", "") + "' " +
                         "AND INDEX_NAME='" + indexName + "';";
                 //Forzar usar index en query
@@ -109,12 +115,18 @@ public class Lobo implements Comparable<Lobo> {
 //                    System.out.println("Índice creado");
                 }
             }
-            //Solo se cuenta el tiempo de la tercera ejecución
-            stmt.execute(this.querys);
-            stmt.execute(this.querys);
-            startTime = System.nanoTime();
-            stmt.execute(this.querys);
-            endTime = (System.nanoTime() - startTime)/1000000000;
+            String[] query = this.querys.split(";");
+            for (int i = 0; i<query.length; i++){
+                //Solo se cuenta el tiempo de la tercera ejecución
+//                System.out.println("Primera ejecución");
+                stmt.execute(query[i]);
+//                System.out.println("Segunda ejecución");
+                stmt.execute(query[i]);
+//                System.out.println("Tercera ejecución");
+                startTime = System.nanoTime();
+                stmt.execute(query[i]);
+                endTime += (System.nanoTime() - startTime)/1000000000;
+            }
             this.tiempoEjecucion = endTime;
             this.querys = queryOriginal;
 //            System.out.println("Querys ejecutados");
@@ -166,6 +178,18 @@ public class Lobo implements Comparable<Lobo> {
         this.frecuenciaTotal = sum;
     }
 
+    public double getPenalidadTotal() {
+        return penalidadTotal;
+    }
+
+    public void setPenalidadTotal() {
+        double sum = 1;
+        for(Columna col : this.columnasSeleccionadas){
+            sum *= col.getPenalidad();
+        }
+        this.penalidadTotal = sum;
+    }
+
     public List<Columna> getColumnas() {
         return columnas;
     }
@@ -181,7 +205,7 @@ public class Lobo implements Comparable<Lobo> {
     public void setColumnasSeleccionadas() {
         List<Columna> colSelect = new ArrayList<>();
         for(Columna col : this.columnas){
-            if(col.getProbabilidadEleccion() >= 0.75){
+            if(col.getProbabilidadEleccion() >= 0.7){
                 colSelect.add(col);
             }
         }
@@ -200,6 +224,7 @@ public class Lobo implements Comparable<Lobo> {
         else {
             this.setEspacio(tablas);
             this.setFrecuenciaTotal();
+            this.setPenalidadTotal();
             this.setTiempoEjecucion(tablas);
 
             double factorFrecuencia, factorEspacio = (1 + beta * this.espacio / eDisp);
@@ -207,7 +232,7 @@ public class Lobo implements Comparable<Lobo> {
                 factorFrecuencia = 1;
             else
                 factorFrecuencia = (1 + alpha * 1 / this.frecuenciaTotal);
-            double fit = this.tiempoEjecucion * factorFrecuencia * factorEspacio;
+            double fit = this.tiempoEjecucion * factorFrecuencia * factorEspacio * this.penalidadTotal;
             this.fitness = fit;
         }
     }
@@ -216,6 +241,7 @@ public class Lobo implements Comparable<Lobo> {
         for (int i=0; i<this.columnas.size(); i++) {
             this.columnas.get(i).setProbabilidadEleccion(probabilidades[i]);
         }
+        this.penalidadTotal = 1;
         this.frecuenciaTotal = 0;
         this.espacio = 0;
         this.tiempoEjecucion = 0;
@@ -237,7 +263,7 @@ public class Lobo implements Comparable<Lobo> {
         for (int i=0; i<tablas.size(); i++){
             count = 0;
             for(Columna col : this.columnasSeleccionadas){
-                if(i + 1 == col.getTuplaTabla()){
+                if(tablas.get(i).getNumeroTabla() == col.getTuplaTabla()){
                     count ++;
                     break;
                 }
@@ -256,7 +282,7 @@ public class Lobo implements Comparable<Lobo> {
         for (int i=0; i<tablas.size(); i++){
             count = 0;
             for(Columna col : this.columnasSeleccionadas){
-                if(i + 1 == col.getTuplaTabla()){
+                if(tablas.get(i).getNumeroTabla() == col.getTuplaTabla()){
                     count ++;
                 }
             }
@@ -269,11 +295,10 @@ public class Lobo implements Comparable<Lobo> {
             }
         }
 
-        List<Columna> colsSelAgente;
         //Columnas no repetidas
         for(Lobo agente : poblacion){
-            colsSelAgente = agente.getColumnasSeleccionadas();
-            if (colsSelAgente.containsAll(this.columnasSeleccionadas) || this.columnasSeleccionadas.containsAll(colsSelAgente)){
+            if (agente.mismasColumnasSeleccionadas(this) || this.mismasColumnasSeleccionadas(agente)){
+//                System.out.println("Mismas columnas");
                 flagValido = false;
                 return flagValido;
             }
@@ -287,7 +312,44 @@ public class Lobo implements Comparable<Lobo> {
             return flagValido;
         }
 
+        //Solo PK
+        int total;
+        for (int i=0; i<tablas.size(); i++){
+            total = 0;
+            for(Columna c : this.columnasSeleccionadas){
+                if (tablas.get(i).getNumeroTabla() == c.getTuplaTabla() && c.isEsPk())
+                    total++;
+            }
+            if (indiceColumnas[i] != 0 && total == indiceColumnas[i]){
+//                System.out.println("Solo pk");
+                flagValido = false;
+                return flagValido;
+            }
+        }
+
         return flagValido;
+    }
+
+    public boolean mismasColumnasSeleccionadas (Lobo otro){
+        if (this.columnasSeleccionadas.size() != otro.getColumnasSeleccionadas().size())
+            return false;
+        List<Pair<Integer, Integer>> cols = new ArrayList<>(), colsOtro = new ArrayList<>();
+        for (int i=0; i<this.columnasSeleccionadas.size(); i++){
+            cols.add(this.columnasSeleccionadas.get(i).getTupla());
+            colsOtro.add(otro.getColumnasSeleccionadas().get(i).getTupla());
+        }
+        return cols.equals(colsOtro);
+    }
+
+    public boolean contieneColumnasSeleccionadas (Lobo otro){
+        List<Pair<Integer, Integer>> cols = new ArrayList<>(), colsOtro = new ArrayList<>();
+        for (int i=0; i<this.columnasSeleccionadas.size(); i++){
+            cols.add(this.columnasSeleccionadas.get(i).getTupla());
+        }
+        for (int i=0; i<otro.getColumnasSeleccionadas().size(); i++){
+            colsOtro.add(otro.getColumnasSeleccionadas().get(i).getTupla());
+        }
+        return cols.containsAll(colsOtro);
     }
 
     @Override

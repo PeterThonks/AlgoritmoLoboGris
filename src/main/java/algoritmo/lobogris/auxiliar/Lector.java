@@ -23,6 +23,7 @@ public class Lector {
     private Path rutaArchivoQuery;
     private List<Tabla> tablas;
     private List<Columna> columnas;
+    private List<Columna> columnasQuery;
     private String querys;
 
     public Lector(String rutaArchivoTablas, String rutaArchivoColumnas, Path rutaArchivoQuery) {
@@ -39,6 +40,10 @@ public class Lector {
 
     public List<Columna> getColumnas() {
         return columnas;
+    }
+
+    public List<Columna> getColumnasQuery() {
+        return columnasQuery;
     }
 
     public String getQuerys() {
@@ -60,10 +65,19 @@ public class Lector {
         this.leerTablas();
         this.leerColumnas();
         this.setQuerys();
-//        for (Tabla t : tablas){
+        this.setColumnasQuery();
+//        System.out.println("Tablas");
+//        for (Tabla t : this.tablas){
 //            t.printTabla();
 //        }
-//        for (Columna c : columnas){
+//        System.out.println("Columnas");
+//        for (Columna c : this.columnas){
+//            c.printColumna();
+//        }
+//        System.out.println("Query: ");
+//        System.out.println(this.querys);
+//        System.out.println("Columnas del query");
+//        for (Columna c : this.columnasQuery){
 //            c.printColumna();
 //        }
     }
@@ -101,7 +115,8 @@ public class Lector {
             {
                 String[] columna = line.split(splitBy);
                 //use comma as separator
-                Columna nuevaC = new Columna(columna[0], Integer.parseInt(columna[1]), Integer.parseInt(columna[2]), Double.parseDouble(columna[3]), Long.parseLong(columna[4]));
+                Columna nuevaC = new Columna(columna[0], Integer.parseInt(columna[1]), Integer.parseInt(columna[2]),
+                        Double.parseDouble(columna[3]), Long.parseLong(columna[4]), Integer.parseInt(columna[5]) == 1 ? true : false);
                 this.columnas.add(nuevaC);
             }
         }
@@ -110,12 +125,13 @@ public class Lector {
         }
     }
 
-    public List<Columna> obtenerColumnas(){
+    public void setColumnasQuery(){
         List<Columna> columnasQuery = new ArrayList<>();
         String[] querys = this.querys.split(";");
         for (int i = 0; i<querys.length; i++){
 //            System.out.println(querys[i]);
             querys[i] = querys[i].trim().toLowerCase();
+            String fromStatement = querys[i].substring(querys[i].indexOf("from"));
             try {
                 Statement statement = CCJSqlParserUtil.parse(querys[i]);
                 Select selectStatement = (Select) statement;
@@ -136,6 +152,10 @@ public class Lector {
                         if (querys[i].contains(nombreCol)){
 //                            System.out.println(nombreCol);
                             Columna newCol = new Columna(col);
+                            if (fromStatement.contains(nombreCol))
+                                newCol.setPenalidad(1f);
+                            else
+                                newCol.setPenalidad(12f);
                             columnasQuery.add(newCol);
                         }
                     }
@@ -145,6 +165,6 @@ public class Lector {
                 e.printStackTrace();
             }
         }
-        return columnasQuery;
+        this.columnasQuery = columnasQuery;
     }
 }
