@@ -2,6 +2,7 @@ package algoritmo.lobogris.auxiliar;
 
 import algoritmo.lobogris.estructura.Columna;
 import algoritmo.lobogris.estructura.Tabla;
+import algoritmo.shared.util.Constante;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
@@ -13,6 +14,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,11 +29,26 @@ public class Lector {
     private String querys;
 
     public Lector(String rutaArchivoTablas, String rutaArchivoColumnas, Path rutaArchivoQuery) {
+        if (rutaArchivoTablas == null || rutaArchivoColumnas == null || rutaArchivoQuery == null)
+            throw new InvalidParameterException(Constante.INVALID_PARAMETER_MSG);
         this.rutaArchivoTablas = rutaArchivoTablas;
         this.rutaArchivoColumnas = rutaArchivoColumnas;
         this.rutaArchivoQuery = rutaArchivoQuery;
         this.tablas = new ArrayList<>();
         this.columnas = new ArrayList<>();
+        this.setQuerys();
+    }
+
+    public String getRutaArchivoTablas() {
+        return rutaArchivoTablas;
+    }
+
+    public String getRutaArchivoColumnas() {
+        return rutaArchivoColumnas;
+    }
+
+    public Path getRutaArchivoQuery() {
+        return rutaArchivoQuery;
     }
 
     public List<Tabla> getTablas() {
@@ -64,7 +81,6 @@ public class Lector {
     public void leerArchivos(){
         this.leerTablas();
         this.leerColumnas();
-        this.setQuerys();
         this.setColumnasQuery();
 //        System.out.println("Tablas");
 //        for (Tabla t : this.tablas){

@@ -1,7 +1,9 @@
 package algoritmo.lobogris.estructura;
 
+import algoritmo.shared.util.Constante;
 import org.javatuples.Pair;
 
+import java.security.InvalidParameterException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,11 @@ public class Lobo implements Comparable<Lobo> {
     private String createIndexSyntax;
 
     public Lobo(String querys, List<Columna> columnasSeleccionadas) {
+        if (querys == null || columnasSeleccionadas == null)
+            throw new InvalidParameterException(Constante.INVALID_PARAMETER_MSG);
+        if (columnasSeleccionadas.isEmpty())
+            throw new InvalidParameterException(Constante.EMPTY_LIST_PARAMETER_MSG);
+
         this.querys = querys;
         for(int i=0; i<columnasSeleccionadas.size(); i++){
             columnasSeleccionadas.get(i).setProbabilidadEleccion();
@@ -63,6 +70,8 @@ public class Lobo implements Comparable<Lobo> {
     }
 
     public void setTiempoEjecucion(List<Tabla> tablas) {
+        if (this.columnasSeleccionadas == null)
+            throw new InvalidParameterException(Constante.INCONSISTENT_PARAMETER_MSG);
         String connectionUrl = "jdbc:mysql://localhost:3306/northwind?serverTimezone=UTC", createIndexSyntax = "", dropIndexSyntax = "", checkExistance = "";
         double startTime, endTime = 0;
         //Crear sintaxis de índice
@@ -146,6 +155,12 @@ public class Lobo implements Comparable<Lobo> {
     }
 
     public void setEspacio(List<Tabla> tablas) {
+        if (tablas == null)
+            throw new InvalidParameterException(Constante.INVALID_PARAMETER_MSG);
+        if (tablas.isEmpty())
+            throw new InvalidParameterException(Constante.EMPTY_LIST_PARAMETER_MSG);
+        if (this.columnasSeleccionadas == null)
+            throw new InvalidParameterException(Constante.INCONSISTENT_PARAMETER_MSG);
         double sum = 0;
         double espTab;
         for (int i=0; i<tablas.size(); i++){
@@ -170,6 +185,8 @@ public class Lobo implements Comparable<Lobo> {
     }
 
     public void setFrecuenciaTotal() {
+        if (this.columnasSeleccionadas == null)
+            throw new InvalidParameterException(Constante.INCONSISTENT_PARAMETER_MSG);
         double sum = 0;
         for(Columna col : this.columnasSeleccionadas){
             sum += col.getFrecuenciaUso();
@@ -182,6 +199,8 @@ public class Lobo implements Comparable<Lobo> {
     }
 
     public void setPenalidadTotal() {
+        if (this.columnasSeleccionadas == null)
+            throw new InvalidParameterException(Constante.INCONSISTENT_PARAMETER_MSG);
         double sum = 1;
         for(Columna col : this.columnasSeleccionadas){
             sum *= col.getPenalidad();
@@ -202,6 +221,8 @@ public class Lobo implements Comparable<Lobo> {
     }
 
     public void setColumnasSeleccionadas() {
+        if (this.columnas == null)
+            throw new InvalidParameterException(Constante.INCONSISTENT_PARAMETER_MSG);
         List<Columna> colSelect = new ArrayList<>();
         for(Columna col : this.columnas){
             if(col.getProbabilidadEleccion() >= 0.7){
@@ -218,7 +239,7 @@ public class Lobo implements Comparable<Lobo> {
     public void setFitness(List<Tabla> tablas, double alpha, double beta, double eDisp) {
         this.setColumnasSeleccionadas();
         if (this.columnasSeleccionadas.size() == 0){
-            this.fitness = 1000000000;
+            throw new InvalidParameterException(Constante.EMPTY_LIST_PARAMETER_MSG);
         }
         else {
             this.setEspacio(tablas);
@@ -237,6 +258,12 @@ public class Lobo implements Comparable<Lobo> {
     }
 
     public void updatePosicion (double[] probabilidades){
+        if (probabilidades == null)
+            throw new InvalidParameterException(Constante.INVALID_PARAMETER_MSG);
+        if (probabilidades.length == 0)
+            throw new InvalidParameterException(Constante.EMPTY_LIST_PARAMETER_MSG);
+        if (probabilidades.length != this.columnas.size())
+            throw new InvalidParameterException(Constante.INCONSISTENT_PARAMETER_MSG);
         for (int i=0; i<this.columnas.size(); i++) {
             this.columnas.get(i).setProbabilidadEleccion(probabilidades[i]);
         }
@@ -244,7 +271,7 @@ public class Lobo implements Comparable<Lobo> {
         this.frecuenciaTotal = 0;
         this.espacio = 0;
         this.tiempoEjecucion = 0;
-        this.fitness = 0;
+        this.fitness = 1000000000;
     }
 
     public Boolean esValido (List<Lobo> poblacion, double eDisp, List<Tabla> tablas){
@@ -316,7 +343,7 @@ public class Lobo implements Comparable<Lobo> {
         for (int i=0; i<tablas.size(); i++){
             total = 0;
             for(Columna c : this.columnasSeleccionadas){
-                if (tablas.get(i).getNumeroTabla() == c.getTuplaTabla() && c.isEsPk())
+                if (tablas.get(i).getNumeroTabla() == c.getTuplaTabla() && c.isEsPkFk())
                     total++;
             }
             if (indiceColumnas[i] != 0 && total == indiceColumnas[i]){

@@ -1,6 +1,9 @@
 package algoritmo.lobogris.estructura;
 
+import algoritmo.shared.util.Constante;
 import org.javatuples.Pair;
+
+import java.security.InvalidParameterException;
 
 public class Columna {
     private String nombreColumna;
@@ -9,16 +12,21 @@ public class Columna {
     private long cantidadBytes;
     private double probabilidadEleccion;
     private float penalidad;
-    private boolean esPk;
+    private boolean esPkFk;
 
-    public Columna(String nombreColumna, int tabla, int columna, double frecuenciaUso, long cantidadBytes, boolean esPk) {
+    public Columna(String nombreColumna, int tabla, int columna, double frecuenciaUso, long cantidadBytes, boolean esPkFk) {
+        if (nombreColumna == null)
+            throw new InvalidParameterException(Constante.INVALID_PARAMETER_MSG);
+        if (tabla < 0 || columna < 0 || frecuenciaUso < 0 || cantidadBytes < 0)
+            throw new InvalidParameterException(Constante.NEGATIVE_PARAMETER_MSG);
+
         this.nombreColumna = nombreColumna;
         this.tupla = new Pair<>(tabla,columna);
         this.frecuenciaUso = frecuenciaUso;
         this.cantidadBytes = cantidadBytes;
         this.probabilidadEleccion = Math.random();
         this.penalidad = 1;
-        this.esPk = esPk;
+        this.esPkFk = esPkFk;
     }
 
     public Columna(Columna otro) {
@@ -28,7 +36,7 @@ public class Columna {
         this.cantidadBytes = otro.getCantidadBytes();
         this.probabilidadEleccion = otro.getProbabilidadEleccion();
         this.penalidad = otro.getPenalidad();
-        this.esPk = otro.isEsPk();
+        this.esPkFk = otro.isEsPkFk();
     }
 
     public String getNombreColumna() {
@@ -91,17 +99,17 @@ public class Columna {
         this.penalidad = penalidad;
     }
 
-    public boolean isEsPk() {
-        return esPk;
+    public boolean isEsPkFk() {
+        return esPkFk;
     }
 
-    public void setEsPk(boolean esPk) {
-        this.esPk = esPk;
+    public void setEsPkFk(boolean esPkFk) {
+        this.esPkFk = esPkFk;
     }
 
     public void printColumna(){
         System.out.println("Columna " + this.nombreColumna + " n° " + this.tupla + " con frecuencia " + this.frecuenciaUso
                 + ", cantidad de bytes " + this.cantidadBytes + ", probabilidad de elección de " + this.probabilidadEleccion
-                + ", penalidad de " + this.penalidad + " y " + (this.esPk ? "sí" : "no") + " es PK");
+                + ", penalidad de " + this.penalidad + " y " + (this.esPkFk ? "sí" : "no") + " es PK");
     }
 }

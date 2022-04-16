@@ -1,11 +1,20 @@
 package algoritmo.lobogris.estructura;
 
+import algoritmo.shared.util.Constante;
+
+import java.security.InvalidParameterException;
+
 public class Tabla {
     private String nombreTabla;
     private int numeroTabla;
     private int cantidadFilas;
 
     public Tabla(String nombreTabla, int numeroTabla, int cantidadFilas) {
+        if (nombreTabla == null )
+            throw new InvalidParameterException(Constante.INVALID_PARAMETER_MSG);
+        if (numeroTabla < 0 || cantidadFilas < 0)
+            throw new InvalidParameterException(Constante.NEGATIVE_PARAMETER_MSG);
+
         this.nombreTabla = nombreTabla;
         this.numeroTabla = numeroTabla;
         this.cantidadFilas = cantidadFilas;

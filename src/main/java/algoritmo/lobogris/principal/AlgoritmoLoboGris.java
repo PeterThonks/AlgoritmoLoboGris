@@ -9,9 +9,9 @@ import java.nio.file.Path;
 
 public class AlgoritmoLoboGris {
     public static void main(String[] args) {
-//        String filenameTablas = "tablas_chinook_mysql.csv", filenameColumnas = "columnas_chinook_mysql.csv", filenameQuery = "query_chinook.sql";
-        String filenameTablas = "tablas_northwind_mysql.csv", filenameColumnas = "columnas_northwind_mysql.csv", filenameQuery = "query_northwind.sql";
-//        String filenameTablas = "tablas_employees_mysql.csv", filenameColumnas = "columnas_employees_mysql.csv", filenameQuery = "query_employees.sql";
+        String filenameTablas = "tablas_"+Constante.DATABASE_SELECTED+"_mysql.csv",
+                filenameColumnas = "columnas_"+Constante.DATABASE_SELECTED+"_mysql.csv",
+                filenameQuery = "query_"+Constante.DATABASE_SELECTED+".sql";
 
         Lector lector = new Lector(Constante.PATH_INPUT_CSV + filenameTablas,
                 Constante.PATH_INPUT_CSV + filenameColumnas,
@@ -51,6 +51,5 @@ public class AlgoritmoLoboGris {
         System.out.println("Bueeeena");
         System.out.println("Cantidad de iteraciones: " + t);
         System.out.println("Tiempo total: " + endTime + " segundos.");
-
     }
 }

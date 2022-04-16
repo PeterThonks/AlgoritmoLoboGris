@@ -3,7 +3,9 @@ package algoritmo.lobogris.principal;
 import algoritmo.lobogris.auxiliar.Lector;
 import algoritmo.lobogris.estructura.Columna;
 import algoritmo.lobogris.estructura.Lobo;
+import algoritmo.shared.util.Constante;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,7 +18,13 @@ public class Poblacion {
     private Lobo gammaWolf;
 
     public Poblacion(int tamanoPoblacion) {
+        if (tamanoPoblacion < 0)
+            throw new InvalidParameterException(Constante.NEGATIVE_PARAMETER_MSG);
         this.tamanoPoblacion = tamanoPoblacion;
+    }
+
+    public int getTamanoPoblacion() {
+        return tamanoPoblacion;
     }
 
     public Lobo getAlphaWolf() {
@@ -24,6 +32,10 @@ public class Poblacion {
     }
 
     public void crearPoblacion(Lector lector, double eDisp){
+        if (lector == null)
+            throw new InvalidParameterException(Constante.INVALID_PARAMETER_MSG);
+        if (eDisp < 0)
+            throw new InvalidParameterException(Constante.NEGATIVE_PARAMETER_MSG);
         List<Columna> columnasSel = lector.getColumnasQuery();
         int cont = 0;
         List<Lobo> p = new ArrayList<>();
@@ -38,6 +50,10 @@ public class Poblacion {
     }
 
     public void seleccionarTresMejoresSoluciones(Lector lector, double alpha, double beta, double eDisp){
+        if (lector == null)
+            throw new InvalidParameterException(Constante.INVALID_PARAMETER_MSG);
+        if (alpha < 0 || beta < 0 || eDisp < 0)
+            throw new InvalidParameterException(Constante.NEGATIVE_PARAMETER_MSG);
         System.out.println("Mejores lobos");
         for (int i = 0; i<this.poblacion.size(); i++){
             if (this.poblacion.get(i).getFitness() == 1000000000){
@@ -53,6 +69,10 @@ public class Poblacion {
     }
 
     public void actualizarPosicion(double a, Lector lector, double alpha, double beta, double eDisp){
+        if (lector == null)
+            throw new InvalidParameterException(Constante.INVALID_PARAMETER_MSG);
+        if (a < 0 || alpha < 0 || beta < 0 || eDisp < 0)
+            throw new InvalidParameterException(Constante.NEGATIVE_PARAMETER_MSG);
         int cantCols = this.alphaWolf.getColumnas().size();
         Boolean valido;
         Lobo nuevoLobo;
