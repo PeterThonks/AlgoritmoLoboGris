@@ -4,7 +4,6 @@ import org.javatuples.Pair;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Lobo implements Comparable<Lobo> {

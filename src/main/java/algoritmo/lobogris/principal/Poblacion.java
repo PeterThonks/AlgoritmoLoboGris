@@ -3,7 +3,6 @@ package algoritmo.lobogris.principal;
 import algoritmo.lobogris.auxiliar.Lector;
 import algoritmo.lobogris.estructura.Columna;
 import algoritmo.lobogris.estructura.Lobo;
-import algoritmo.lobogris.estructura.Tabla;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,9 +73,6 @@ public class Poblacion {
                     X3[j] = this.gammaWolf.getColumnas().get(j).getProbabilidadEleccion() -
                             A3 * Math.abs(C3 * this.gammaWolf.getColumnas().get(j).getProbabilidadEleccion() -
                                     this.poblacion.get(i).getColumnas().get(j).getProbabilidadEleccion());
-//                    X1[j] = Math.min(Math.max(X1[j], 0), 1);
-//                    X2[j] = Math.min(Math.max(X2[j], 0), 1);
-//                    X3[j] = Math.min(Math.max(X3[j], 0), 1);
                     XNuevo[j] += X1[j] + X2[j] + X3[j];
                 }
                 for (int j = 0; j<cantCols; j++){
