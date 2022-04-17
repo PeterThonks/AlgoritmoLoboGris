@@ -59,6 +59,7 @@ public class LoboTest {
             l = new Lobo(lector.getQuerys(), lector.getColumnasQuery());
         } while (l.esValido(p, 1000, lector.getTablas()));
         l.setEspacio(lector.getTablas());
+        System.out.println(l.getEspacio());
     }
 
     @Test
@@ -82,6 +83,7 @@ public class LoboTest {
             l = new Lobo(lector.getQuerys(), lector.getColumnasQuery());
         } while (l.esValido(p, 1000, lector.getTablas()));
         l.setFrecuenciaTotal();
+        System.out.println(l.getFrecuenciaTotal());
     }
 
     @Test
@@ -105,6 +107,7 @@ public class LoboTest {
             l = new Lobo(lector.getQuerys(), lector.getColumnasQuery());
         } while (l.esValido(p, 1000, lector.getTablas()));
         l.setPenalidadTotal();
+        System.out.println(l.getPenalidadTotal());
     }
 
     @Test
@@ -128,6 +131,7 @@ public class LoboTest {
             l = new Lobo(lector.getQuerys(), lector.getColumnasQuery());
         } while (l.esValido(p, 1000, lector.getTablas()));
         l.setTiempoEjecucion(lector.getTablas());
+        System.out.println(l.getTiempoEjecucion());
     }
 
     @Test
@@ -151,6 +155,9 @@ public class LoboTest {
             l = new Lobo(lector.getQuerys(), lector.getColumnasQuery());
         } while (l.esValido(p, 1000, lector.getTablas()));
         l.setColumnasSeleccionadas();
+        for (Columna c : l.getColumnasSeleccionadas()){
+            c.printColumna();
+        }
     }
 
     @Test
@@ -164,6 +171,7 @@ public class LoboTest {
             l = new Lobo(lector.getQuerys(), lector.getColumnasQuery());
         } while (l.esValido(p, 1000, lector.getTablas()));
         l.setFitness(lector.getTablas(),0.5, 0.5, 1000);
+        System.out.println(l.getFitness());
     }
 
     @Test
