@@ -6,6 +6,7 @@ import algoritmo.lobogris.estructura.Lobo;
 import algoritmo.shared.util.Constante;
 
 import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
 
 public class AlgoritmoLoboGris {
     public static void main(String[] args) {
@@ -19,37 +20,31 @@ public class AlgoritmoLoboGris {
         lector.leerArchivos();
 
         int tamanoPoblacion = lector.getColumnasQuery().size() / 2, t = 1, maxIter = 500, sinMejora = 0;
-        double alpha = 0.5, beta = 0.5, eDisp = 1000000, a, startTime, endTime;
+        double alpha = 0.5, beta = 0.5, eDisp = 1000000, a;
+        long startTime, endTime;
         Lobo alphaWolf;
         startTime = System.nanoTime();
         Poblacion poblacion = new Poblacion(tamanoPoblacion);
         poblacion.crearPoblacion(lector, eDisp);
         poblacion.seleccionarTresMejoresSoluciones(lector, alpha, beta, eDisp);
         while (t <= maxIter){
-            if (t == maxIter){
-                System.out.println("maxIter");
-            }
-            System.out.println("Iteración n°"+t);
-            System.out.println(sinMejora);
-            if (sinMejora == Math.max(30, (int) (maxIter*0.3))){
+            System.out.println("Iteración n° "+t);
+            System.out.println("Sin mejora: "+sinMejora);
+            if (sinMejora == Math.max(30, (int) (maxIter*0.3)))
                 break;
-            }
             a = 2 * (1 - t/maxIter);
             alphaWolf = new Lobo(poblacion.getAlphaWolf());
             poblacion.actualizarPosicion(a, lector, alpha, beta, eDisp);
             poblacion.seleccionarTresMejoresSoluciones(lector, alpha, beta, eDisp);
-            if (alphaWolf.mismasColumnasSeleccionadas(poblacion.getAlphaWolf())){
+            if (alphaWolf.mismasColumnasSeleccionadas(poblacion.getAlphaWolf()))
                 sinMejora++;
-            }
-            else {
+            else
                 sinMejora = 0;
-            }
             t++;
         }
         poblacion.printMejorSolucion();
-        endTime = (System.nanoTime() - startTime)/1000000000;
-        System.out.println("Bueeeena");
+        endTime = (System.nanoTime() - startTime);
         System.out.println("Cantidad de iteraciones: " + t);
-        System.out.println("Tiempo total: " + endTime + " segundos.");
+        System.out.println("Tiempo total: " + TimeUnit.MINUTES.convert(endTime, TimeUnit.NANOSECONDS) + " minutos.");
     }
 }

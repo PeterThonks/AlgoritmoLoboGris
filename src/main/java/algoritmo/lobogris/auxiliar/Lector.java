@@ -171,7 +171,7 @@ public class Lector {
                             if (fromStatement.contains(nombreCol))
                                 newCol.setPenalidad(1f);
                             else
-                                newCol.setPenalidad(12f);
+                                newCol.setPenalidad(7.5f);
                             columnasQuery.add(newCol);
                         }
                     }

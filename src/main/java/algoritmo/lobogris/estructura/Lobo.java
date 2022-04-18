@@ -72,7 +72,7 @@ public class Lobo implements Comparable<Lobo> {
     public void setTiempoEjecucion(List<Tabla> tablas) {
         if (this.columnasSeleccionadas == null)
             throw new InvalidParameterException(Constante.INCONSISTENT_PARAMETER_MSG);
-        String connectionUrl = "jdbc:mysql://localhost:3306/northwind?serverTimezone=UTC", createIndexSyntax = "", dropIndexSyntax = "", checkExistance = "";
+        String connectionUrl = "jdbc:mysql://localhost:3306/"+Constante.DATABASE_SELECTED+"?serverTimezone=UTC", createIndexSyntax = "", dropIndexSyntax = "", checkExistance = "";
         double startTime, endTime = 0;
         //Crear sintaxis de índice
         String indexName, indexColumns, queryOriginal = this.querys;
@@ -90,7 +90,7 @@ public class Lobo implements Comparable<Lobo> {
                 indexColumns = indexColumns.substring(0, indexColumns.length() - 2);
                 createIndexSyntax += "CREATE INDEX " + indexName + " ON " + tablas.get(i).getNombreTabla() + " (" + indexColumns + ");";
                 dropIndexSyntax += "DROP INDEX " + indexName + " ON " + tablas.get(i).getNombreTabla() + ";";
-                checkExistance += "SELECT 1 FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = 'northwind' " +
+                checkExistance += "SELECT 1 FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = '"+Constante.DATABASE_SELECTED+"' " +
                         "AND TABLE_NAME='" + tablas.get(i).getNombreTabla().toLowerCase().replaceAll("[^a-zA-Z0-9]", "") + "' " +
                         "AND INDEX_NAME='" + indexName + "';";
                 //Forzar usar index en query
@@ -120,28 +120,22 @@ public class Lobo implements Comparable<Lobo> {
                 rs.last();
                 if (rs.getRow()==0){
                     stmt.execute(createIndex[i].trim());
-//                    System.out.println("Índice creado");
                 }
             }
             String[] query = this.querys.split(";");
             for (int i = 0; i<query.length; i++){
                 //Solo se cuenta el tiempo de la tercera ejecución
-//                System.out.println("Primera ejecución");
                 stmt.execute(query[i]);
-//                System.out.println("Segunda ejecución");
                 stmt.execute(query[i]);
-//                System.out.println("Tercera ejecución");
                 startTime = System.nanoTime();
                 stmt.execute(query[i]);
                 endTime += (System.nanoTime() - startTime)/1000000000;
             }
             this.tiempoEjecucion = endTime;
             this.querys = queryOriginal;
-//            System.out.println("Querys ejecutados");
             String[] dropIndex = dropIndexSyntax.split(";");
             for (int i = 0; i<dropIndex.length; i++){
                 stmt.execute(dropIndex[i]);
-//                System.out.println("Índice dropeado");
             }
         } catch (SQLException ex) {
             if (!ex.getMessage().contains("needed in a foreign key constraint")){
@@ -237,24 +231,18 @@ public class Lobo implements Comparable<Lobo> {
     }
 
     public void setFitness(List<Tabla> tablas, double alpha, double beta, double eDisp) {
-        this.setColumnasSeleccionadas();
-        if (this.columnasSeleccionadas.size() == 0){
-            throw new InvalidParameterException(Constante.EMPTY_LIST_PARAMETER_MSG);
-        }
-        else {
-            this.setEspacio(tablas);
-            this.setFrecuenciaTotal();
-            this.setPenalidadTotal();
-            this.setTiempoEjecucion(tablas);
+        this.setEspacio(tablas);
+        this.setFrecuenciaTotal();
+        this.setPenalidadTotal();
+        this.setTiempoEjecucion(tablas);
 
-            double factorFrecuencia, factorEspacio = (1 + beta * this.espacio / eDisp);
-            if (this.frecuenciaTotal == 0)
-                factorFrecuencia = 1;
-            else
-                factorFrecuencia = (1 + alpha * 1 / this.frecuenciaTotal);
-            double fit = this.tiempoEjecucion * factorFrecuencia * factorEspacio * this.penalidadTotal;
-            this.fitness = fit;
-        }
+        double factorFrecuencia, factorEspacio = (1 + beta * this.espacio / eDisp);
+        if (this.frecuenciaTotal == 0)
+            factorFrecuencia = 1;
+        else
+            factorFrecuencia = (1 + alpha * 1 / this.frecuenciaTotal);
+        double fit = this.tiempoEjecucion * factorFrecuencia * factorEspacio * this.penalidadTotal;
+        this.fitness = fit;
     }
 
     public void updatePosicion (double[] probabilidades){

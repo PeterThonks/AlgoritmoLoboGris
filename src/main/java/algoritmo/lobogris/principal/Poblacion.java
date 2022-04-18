@@ -114,6 +114,10 @@ public class Poblacion {
     public void printMejorSolucion() {
         System.out.println("La mejor solución es:");
         System.out.println(this.alphaWolf.getCreateIndexSyntax());
+        System.out.println("La segunda mejor solución es:");
+        System.out.println(this.betaWolf.getCreateIndexSyntax());
+        System.out.println("La tercera mejor solución es:");
+        System.out.println(this.gammaWolf.getCreateIndexSyntax());
     }
 
 }
