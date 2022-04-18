@@ -154,7 +154,6 @@ public class Lector {
                 TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
                 List<String> tableList = tablesNamesFinder.getTableList(selectStatement);
                 for (String tableName : tableList) {
-//                    System.out.println(tableName);
                     Tabla tb = this.tablas.stream()
                             .filter(tabla -> tableName.equals(tabla.getNombreTabla().toLowerCase()))
                             .findAny()
@@ -165,7 +164,11 @@ public class Lector {
                             .collect(Collectors.toList());
                     for (Columna col : columnasAux){
                         String nombreCol = tableName + "." + col.getNombreColumna().toLowerCase();
-                        if (querys[i].contains(nombreCol)){
+                        Columna columnaRepetida = columnasQuery.stream()
+                                .filter(columna -> col.getTupla() == columna.getTupla())
+                                .findAny()
+                                .orElse(null);
+                        if (querys[i].contains(nombreCol) && columnaRepetida == null){
 //                            System.out.println(nombreCol);
                             Columna newCol = new Columna(col);
                             if (fromStatement.contains(nombreCol))
