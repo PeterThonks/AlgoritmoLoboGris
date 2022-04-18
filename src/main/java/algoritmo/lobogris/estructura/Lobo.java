@@ -331,7 +331,7 @@ public class Lobo implements Comparable<Lobo> {
         for (int i=0; i<tablas.size(); i++){
             total = 0;
             for(Columna c : this.columnasSeleccionadas){
-                if (tablas.get(i).getNumeroTabla() == c.getTuplaTabla() && c.isEsPkFk())
+                if (tablas.get(i).getNumeroTabla() == c.getTuplaTabla() && c.isEsPk())
                     total++;
             }
             if (indiceColumnas[i] != 0 && total == indiceColumnas[i]){

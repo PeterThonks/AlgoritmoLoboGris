@@ -12,9 +12,9 @@ public class Columna {
     private long cantidadBytes;
     private double probabilidadEleccion;
     private float penalidad;
-    private boolean esPkFk;
+    private boolean esPk;
 
-    public Columna(String nombreColumna, int tabla, int columna, double frecuenciaUso, long cantidadBytes, boolean esPkFk) {
+    public Columna(String nombreColumna, int tabla, int columna, double frecuenciaUso, long cantidadBytes, boolean esPk) {
         if (nombreColumna == null)
             throw new InvalidParameterException(Constante.INVALID_PARAMETER_MSG);
         if (tabla < 0 || columna < 0 || frecuenciaUso < 0 || cantidadBytes < 0)
@@ -26,7 +26,7 @@ public class Columna {
         this.cantidadBytes = cantidadBytes;
         this.probabilidadEleccion = Math.random();
         this.penalidad = 1;
-        this.esPkFk = esPkFk;
+        this.esPk = esPk;
     }
 
     public Columna(Columna otro) {
@@ -36,7 +36,7 @@ public class Columna {
         this.cantidadBytes = otro.getCantidadBytes();
         this.probabilidadEleccion = otro.getProbabilidadEleccion();
         this.penalidad = otro.getPenalidad();
-        this.esPkFk = otro.isEsPkFk();
+        this.esPk = otro.isEsPk();
     }
 
     public String getNombreColumna() {
@@ -99,17 +99,17 @@ public class Columna {
         this.penalidad = penalidad;
     }
 
-    public boolean isEsPkFk() {
-        return esPkFk;
+    public boolean isEsPk() {
+        return esPk;
     }
 
-    public void setEsPkFk(boolean esPkFk) {
-        this.esPkFk = esPkFk;
+    public void setEsPk(boolean esPk) {
+        this.esPk = esPk;
     }
 
     public void printColumna(){
         System.out.println("Columna " + this.nombreColumna + " n° " + this.tupla + " con frecuencia " + this.frecuenciaUso
                 + ", cantidad de bytes " + this.cantidadBytes + ", probabilidad de elección de " + this.probabilidadEleccion
-                + ", penalidad de " + this.penalidad + " y " + (this.esPkFk ? "sí" : "no") + " es PK");
+                + ", penalidad de " + this.penalidad + " y " + (this.esPk ? "sí" : "no") + " es PK");
     }
 }

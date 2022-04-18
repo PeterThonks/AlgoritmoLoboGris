@@ -15,7 +15,7 @@ public class ColumnaTest {
         assertEquals(new Pair<Integer, Integer>(1, 3), c.getTupla());
         assertEquals(0.1, c.getFrecuenciaUso());
         assertEquals(150, c.getCantidadBytes());
-        assertEquals(true, c.isEsPkFk());
+        assertEquals(true, c.isEsPk());
         assertEquals((1)/2.0, c.getProbabilidadEleccion(), (1)/2.0);
         assertEquals(1, c.getPenalidad());
     }
