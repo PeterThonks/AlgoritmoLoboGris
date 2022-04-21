@@ -31,6 +31,14 @@ public class Poblacion {
         return alphaWolf;
     }
 
+    public Lobo getBetaWolf() {
+        return betaWolf;
+    }
+
+    public Lobo getGammaWolf() {
+        return gammaWolf;
+    }
+
     public void crearPoblacion(Lector lector, double eDisp){
         if (lector == null)
             throw new InvalidParameterException(Constante.INVALID_PARAMETER_MSG);
@@ -54,10 +62,10 @@ public class Poblacion {
             throw new InvalidParameterException(Constante.INVALID_PARAMETER_MSG);
         if (alpha < 0 || beta < 0 || eDisp < 0)
             throw new InvalidParameterException(Constante.NEGATIVE_PARAMETER_MSG);
-        System.out.println("Mejores lobos");
+//        System.out.println("Mejores lobos");
         for (int i = 0; i<this.poblacion.size(); i++){
             if (this.poblacion.get(i).getFitness() == 1000000000){
-                System.out.println("ML Lobo n°" + i);
+//                System.out.println("ML Lobo n°" + i);
                 this.poblacion.get(i).setFitness(lector.getTablas(), alpha, beta, eDisp);
             }
         }
@@ -77,7 +85,7 @@ public class Poblacion {
         Boolean valido;
         Lobo nuevoLobo;
         for (int i = 0; i<this.poblacion.size(); i++){
-            System.out.println("Lobo n°" + i);
+//            System.out.println("Lobo n°" + i);
             do {
                 double A1 = a * (2 * Math.random() - 1), A2 = a * (2 * Math.random() - 1), A3 = a * (2 * Math.random() - 1);
                 double C1 = 2 * Math.random(), C2 = 2 * Math.random(), C3 = 2 * Math.random();
