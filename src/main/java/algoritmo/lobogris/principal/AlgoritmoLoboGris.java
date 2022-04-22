@@ -6,6 +6,7 @@ import algoritmo.lobogris.estructura.Lobo;
 import algoritmo.shared.util.Constante;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -27,7 +28,8 @@ public class AlgoritmoLoboGris {
         long startTime, endTime;
         Lobo alphaWolf;
         double[] fitnessAlpha = new double[cantPruebas], fitnessBeta = new double[cantPruebas], fitnessGamma = new double[cantPruebas];
-        int[] calibracionMaxIter = new int[]{400};
+        int[] calibracionMaxIter = new int[]{5};
+
         for (int j=0; j<calibracionMaxIter.length; j++){
             for (int i=0; i<cantPruebas; i++){
                 System.out.println("Vuelta n° "+i);
@@ -51,49 +53,23 @@ public class AlgoritmoLoboGris {
                         sinMejora = 0;
                     t++;
                 }
-//            poblacion.printMejorSolucion();
-                fitnessAlpha[i] = poblacion.getAlphaWolf().getFitness();
-                fitnessBeta[i] = poblacion.getBetaWolf().getFitness();
-                fitnessGamma[i] = poblacion.getGammaWolf().getFitness();
-                endTime = (System.nanoTime() - startTime);
-//            System.out.println("Cantidad de iteraciones: " + t);
-//            System.out.println("Tiempo total: " + TimeUnit.MINUTES.convert(endTime, TimeUnit.NANOSECONDS) + " minutos.");
-            }
-            try {
-                BufferedWriter br = new BufferedWriter(new FileWriter(Constante.PATH_OUTPUT_CSV + "calibracionMaxIter"+calibracionMaxIter[j]+".csv"));
-                StringBuilder sb = new StringBuilder();
-
-                // Append strings from array
-                for (int i=0; i<cantPruebas; i++){
-                    sb.append(fitnessAlpha[i]);
-                    sb.append(",");
-                    sb.append(fitnessBeta[i]);
-                    sb.append(",");
-                    sb.append(fitnessGamma[i]);
-                    sb.append("\n");
+                try {
+                    FileWriter pw = new FileWriter(Constante.PATH_OUTPUT_CSV + "calibracionMaxIter" + calibracionMaxIter[j] + ".csv",true);
+                    pw.append(Double.toString(poblacion.getAlphaWolf().getFitness()));
+                    pw.append(",");
+                    pw.append(Double.toString(poblacion.getBetaWolf().getFitness()));
+                    pw.append(",");
+                    pw.append(Double.toString(poblacion.getGammaWolf().getFitness()));
+                    pw.append("\n");
+                    pw.flush();
+                    pw.close();
                 }
+                catch (IOException e){
 
-                br.write(sb.toString());
-                br.close();
-            }
-            catch (IOException e){
-
+                }
             }
         }
 
-
-//        System.out.println("AlphaWolf");
-//        for (int i=0; i<cantPruebas; i++){
-//            System.out.println(fitnessAlpha[i]);
-//        }
-//        System.out.println("BetaWolf");
-//        for (int i=0; i<cantPruebas; i++){
-//            System.out.println(fitnessBeta[i]);
-//        }
-//        System.out.println("GammaWolf");
-//        for (int i=0; i<cantPruebas; i++){
-//            System.out.println(fitnessGamma[i]);
-//        }
 //        String filenameTablas = "tablas_"+Constante.DATABASE_SELECTED+"_mysql.csv",
 //                filenameColumnas = "columnas_"+Constante.DATABASE_SELECTED+"_mysql.csv",
 //                filenameQuery = "query_"+Constante.DATABASE_SELECTED+".sql";
