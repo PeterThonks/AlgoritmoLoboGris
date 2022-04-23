@@ -57,7 +57,7 @@ public class LoboTest {
         List<Lobo> p = new ArrayList<>();
         do {
             l = new Lobo(lector.getQuerys(), lector.getColumnasQuery());
-        } while (l.esValido(p, 1000, lector.getTablas()));
+        } while (l.esValido(p, 1000, lector.getTablas(), 0.75f));
         l.setEspacio(lector.getTablas());
         System.out.println(l.getEspacio());
     }
@@ -81,7 +81,7 @@ public class LoboTest {
         List<Lobo> p = new ArrayList<>();
         do {
             l = new Lobo(lector.getQuerys(), lector.getColumnasQuery());
-        } while (l.esValido(p, 1000, lector.getTablas()));
+        } while (l.esValido(p, 1000, lector.getTablas(), 0.75f));
         l.setFrecuenciaTotal();
         System.out.println(l.getFrecuenciaTotal());
     }
@@ -105,7 +105,7 @@ public class LoboTest {
         List<Lobo> p = new ArrayList<>();
         do {
             l = new Lobo(lector.getQuerys(), lector.getColumnasQuery());
-        } while (l.esValido(p, 1000, lector.getTablas()));
+        } while (l.esValido(p, 1000, lector.getTablas(), 0.75f));
         l.setPenalidadTotal();
         System.out.println(l.getPenalidadTotal());
     }
@@ -129,7 +129,7 @@ public class LoboTest {
         List<Lobo> p = new ArrayList<>();
         do {
             l = new Lobo(lector.getQuerys(), lector.getColumnasQuery());
-        } while (l.esValido(p, 1000, lector.getTablas()));
+        } while (l.esValido(p, 1000, lector.getTablas(), 0.75f));
         l.setTiempoEjecucion(lector.getTablas());
         System.out.println(l.getTiempoEjecucion());
     }
@@ -153,8 +153,8 @@ public class LoboTest {
         List<Lobo> p = new ArrayList<>();
         do {
             l = new Lobo(lector.getQuerys(), lector.getColumnasQuery());
-        } while (l.esValido(p, 1000, lector.getTablas()));
-        l.setColumnasSeleccionadas();
+        } while (l.esValido(p, 1000, lector.getTablas(), 0.75f));
+        l.setColumnasSeleccionadas(0.75f);
         for (Columna c : l.getColumnasSeleccionadas()){
             c.printColumna();
         }
@@ -169,7 +169,7 @@ public class LoboTest {
         List<Lobo> p = new ArrayList<>();
         do {
             l = new Lobo(lector.getQuerys(), lector.getColumnasQuery());
-        } while (l.esValido(p, 1000, lector.getTablas()));
+        } while (l.esValido(p, 1000, lector.getTablas(), 0.75f));
         l.setFitness(lector.getTablas(),0.5, 0.5, 1000);
         System.out.println(l.getFitness());
     }
@@ -193,7 +193,7 @@ public class LoboTest {
         List<Lobo> p = new ArrayList<>();
         do {
             l = new Lobo(lector.getQuerys(), lector.getColumnasQuery());
-        } while (l.esValido(p, 1000, lector.getTablas()));
+        } while (l.esValido(p, 1000, lector.getTablas(), 0.75f));
         double[] arr = new double[]{0.1, 0.05, 0.8, 0.2, 0.6, 0.35, 0.84, 0.64, 0.47, 0.92, 0.64, 0.57, 0.94};
         l.updatePosicion(arr);
     }
@@ -207,7 +207,7 @@ public class LoboTest {
         List<Lobo> p = new ArrayList<>();
         do {
             l = new Lobo(lector.getQuerys(), lector.getColumnasQuery());
-        } while (l.esValido(p, 1000, lector.getTablas()));
+        } while (l.esValido(p, 1000, lector.getTablas(), 0.75f));
         double[] arr = new double[]{0.1, 0.05, 0.8, 0.2, 0.6, 0.35, 0.84, 0.64, 0.47, 0.92, 0.64, 0.57};
         l.updatePosicion(arr);
     }

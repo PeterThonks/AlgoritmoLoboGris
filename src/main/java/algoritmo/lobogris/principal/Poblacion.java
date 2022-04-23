@@ -39,7 +39,7 @@ public class Poblacion {
         return gammaWolf;
     }
 
-    public void crearPoblacion(Lector lector, double eDisp){
+    public void crearPoblacion(Lector lector, double eDisp, float porcentajeAceptacion){
         if (lector == null)
             throw new InvalidParameterException(Constante.INVALID_PARAMETER_MSG);
         if (eDisp < 0)
@@ -49,7 +49,7 @@ public class Poblacion {
         List<Lobo> p = new ArrayList<>();
         while (cont < this.tamanoPoblacion){
             Lobo nuevoLobo = new Lobo(lector.getQuerys(), columnasSel);
-            if (nuevoLobo.esValido(p, eDisp, lector.getTablas())){
+            if (nuevoLobo.esValido(p, eDisp, lector.getTablas(), porcentajeAceptacion)){
                 p.add(new Lobo(nuevoLobo));
                 cont++;
             }
@@ -76,7 +76,7 @@ public class Poblacion {
         this.gammaWolf = this.poblacion.get(2);
     }
 
-    public void actualizarPosicion(double a, Lector lector, double alpha, double beta, double eDisp){
+    public void actualizarPosicion(double a, Lector lector, double alpha, double beta, double eDisp, float porcentajeAceptacion){
         if (lector == null)
             throw new InvalidParameterException(Constante.INVALID_PARAMETER_MSG);
         if (a < 0 || alpha < 0 || beta < 0 || eDisp < 0)
@@ -109,7 +109,7 @@ public class Poblacion {
                 nuevoLobo = new Lobo(this.poblacion.get(i));
                 nuevoLobo.updatePosicion(XNuevo);
 
-                valido = nuevoLobo.esValido(this.poblacion, eDisp, lector.getTablas());
+                valido = nuevoLobo.esValido(this.poblacion, eDisp, lector.getTablas(), porcentajeAceptacion);
             } while (!valido);
 
             nuevoLobo.setFitness(lector.getTablas(), alpha, beta, eDisp);

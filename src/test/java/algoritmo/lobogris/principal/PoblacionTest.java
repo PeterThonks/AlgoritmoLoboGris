@@ -31,13 +31,13 @@ public class PoblacionTest {
                 Constante.PATH_INPUT_CSV + "columnas_northwind_mysql.csv",
                 Path.of(Constante.PATH_INPUT_CSV + "query_northwind.sql"));
         lector.leerArchivos();
-        p.crearPoblacion(lector, 10000);
+        p.crearPoblacion(lector, 10000, 0.75f);
     }
 
     @Test
     public void existenciaConformidadPoblacionInicial(){
         p = new Poblacion(-1);
-        p.crearPoblacion(null, 10000);
+        p.crearPoblacion(null, 10000, 0.75f);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class PoblacionTest {
                 Constante.PATH_INPUT_CSV + "columnas_northwind_mysql.csv",
                 Path.of(Constante.PATH_INPUT_CSV + "query_northwind.sql"));
         lector.leerArchivos();
-        p.crearPoblacion(lector, 10000);
+        p.crearPoblacion(lector, 10000, 0.75f);
         p.seleccionarTresMejoresSoluciones(lector, 0.5, 0.5, 10000);
     }
 
@@ -58,7 +58,7 @@ public class PoblacionTest {
                 Constante.PATH_INPUT_CSV + "columnas_northwind_mysql.csv",
                 Path.of(Constante.PATH_INPUT_CSV + "query_northwind.sql"));
         lector.leerArchivos();
-        p.crearPoblacion(lector, 10000);
+        p.crearPoblacion(lector, 10000, 0.75f);
         p.seleccionarTresMejoresSoluciones(lector, 0.5, 0.5, -10000);
     }
 
@@ -69,9 +69,9 @@ public class PoblacionTest {
                 Constante.PATH_INPUT_CSV + "columnas_northwind_mysql.csv",
                 Path.of(Constante.PATH_INPUT_CSV + "query_northwind.sql"));
         lector.leerArchivos();
-        p.crearPoblacion(lector, 10000);
+        p.crearPoblacion(lector, 10000, 0.75f);
         p.seleccionarTresMejoresSoluciones(lector, 0.5, 0.5, 10000);
-        p.actualizarPosicion(1.6, lector, 0.5, 0.5, 10000);
+        p.actualizarPosicion(1.6, lector, 0.5, 0.5, 10000, 0.75f);
     }
 
     @Test
@@ -81,8 +81,8 @@ public class PoblacionTest {
                 Constante.PATH_INPUT_CSV + "columnas_northwind_mysql.csv",
                 Path.of(Constante.PATH_INPUT_CSV + "query_northwind.sql"));
         lector.leerArchivos();
-        p.crearPoblacion(lector, 10000);
+        p.crearPoblacion(lector, 10000, 0.75f);
         p.seleccionarTresMejoresSoluciones(lector, 0.5, 0.5, 10000);
-        p.actualizarPosicion(-1.6, lector, 0.5, 0.5, 10000);
+        p.actualizarPosicion(-1.6, lector, 0.5, 0.5, 10000, 0.75f);
     }
 }

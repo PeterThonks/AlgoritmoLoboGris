@@ -214,12 +214,12 @@ public class Lobo implements Comparable<Lobo> {
         return columnasSeleccionadas;
     }
 
-    public void setColumnasSeleccionadas() {
+    public void setColumnasSeleccionadas(float porcentajeAceptacion) {
         if (this.columnas == null)
             throw new InvalidParameterException(Constante.INCONSISTENT_PARAMETER_MSG);
         List<Columna> colSelect = new ArrayList<>();
         for(Columna col : this.columnas){
-            if(col.getProbabilidadEleccion() >= 0.7){
+            if(col.getProbabilidadEleccion() >= porcentajeAceptacion){
                 colSelect.add(col);
             }
         }
@@ -262,9 +262,9 @@ public class Lobo implements Comparable<Lobo> {
         this.fitness = 1000000000;
     }
 
-    public Boolean esValido (List<Lobo> poblacion, double eDisp, List<Tabla> tablas){
+    public Boolean esValido (List<Lobo> poblacion, double eDisp, List<Tabla> tablas, float porcentajeAceptacion){
         Boolean flagValido = true;
-        this.setColumnasSeleccionadas();
+        this.setColumnasSeleccionadas(porcentajeAceptacion);
 
         if (this.columnasSeleccionadas.size() == 0){
             flagValido = false;

@@ -23,27 +23,27 @@ public class AlgoritmoLoboGris {
                 Path.of(Constante.PATH_INPUT_CSV + filenameQuery));
         lector.leerArchivos();
 
-        int tamanoPoblacion = lector.getColumnasQuery().size() / 2, t = 1, maxIter = 500, sinMejora = 0, cantPruebas = 50;
+        int tamanoPoblacion = lector.getColumnasQuery().size() / 2, t = 1, maxIter = 500, sinMejora, cantPruebas = 50;
         double alpha = 0.5, beta = 0.5, eDisp = 1000000, a;
         Lobo alphaWolf;
-        int[] calibracionSinMejora = new int[]{50/*, 100, 150, 200, 250*/};
+        float[] calibracionPorcentajeAceptacion = new float[]{0.65f, 0.7f, 0.75f, 0.8f, 0.85f};
 
-        for (int j=0; j<calibracionSinMejora.length; j++){
+        for (int j=0; j<calibracionPorcentajeAceptacion.length; j++){
             for (int i=0; i<cantPruebas; i++){
                 System.out.println("Vuelta n° "+i);
                 Poblacion poblacion = new Poblacion(tamanoPoblacion);
-                poblacion.crearPoblacion(lector, eDisp);
+                poblacion.crearPoblacion(lector, eDisp, calibracionPorcentajeAceptacion[j]);
                 poblacion.seleccionarTresMejoresSoluciones(lector, alpha, beta, eDisp);
                 t = 1;
                 sinMejora = 0;
                 while (t < maxIter){
                     System.out.println("Iteración n° "+t);
                     System.out.println("Sin mejora: "+sinMejora);
-                    if (sinMejora == calibracionSinMejora[j])
+                    if (sinMejora == 200)
                         break;
                     a = 2 * (1 - t/maxIter);
                     alphaWolf = new Lobo(poblacion.getAlphaWolf());
-                    poblacion.actualizarPosicion(a, lector, alpha, beta, eDisp);
+                    poblacion.actualizarPosicion(a, lector, alpha, beta, eDisp, calibracionPorcentajeAceptacion[j]);
                     poblacion.seleccionarTresMejoresSoluciones(lector, alpha, beta, eDisp);
                     if (alphaWolf.mismasColumnasSeleccionadas(poblacion.getAlphaWolf()))
                         sinMejora++;
@@ -52,7 +52,7 @@ public class AlgoritmoLoboGris {
                     t++;
                 }
                 try {
-                    FileWriter pw = new FileWriter(Constante.PATH_OUTPUT_CSV + "calibracionSinMejora" + calibracionSinMejora[j] + ".csv",true);
+                    FileWriter pw = new FileWriter(Constante.PATH_OUTPUT_CSV + "calibracionPorcentajeAceptacion" + calibracionPorcentajeAceptacion[j] + ".csv",true);
                     pw.append(Double.toString(poblacion.getAlphaWolf().getFitness()));
                     pw.append(",");
                     pw.append(Double.toString(poblacion.getBetaWolf().getFitness()));
@@ -116,29 +116,76 @@ public class AlgoritmoLoboGris {
                 Path.of(Constante.PATH_INPUT_CSV + filenameQuery));
         lector.leerArchivos();
 
-        int tamanoPoblacion = lector.getColumnasQuery().size() / 2, t = 1, maxIter = 2, sinMejora = 0, cantPruebas = 43;
+        int tamanoPoblacion = lector.getColumnasQuery().size() / 2, t = 1, cantPruebas = 43;
+        float porcentajeAceptacion = 0.75f;
         double alpha = 0.5, beta = 0.5, eDisp = 1000000, a;
-        long startTime, endTime;
         Lobo alphaWolf;
-        double[] fitnessAlpha = new double[cantPruebas], fitnessBeta = new double[cantPruebas], fitnessGamma = new double[cantPruebas];
         int[] calibracionMaxIter = new int[]{500};
 
         for (int j=0; j<calibracionMaxIter.length; j++){
             for (int i=0; i<cantPruebas; i++){
                 System.out.println("Vuelta n° "+i);
-                startTime = System.nanoTime();
                 Poblacion poblacion = new Poblacion(tamanoPoblacion);
-                poblacion.crearPoblacion(lector, eDisp);
+                poblacion.crearPoblacion(lector, eDisp, porcentajeAceptacion);
                 poblacion.seleccionarTresMejoresSoluciones(lector, alpha, beta, eDisp);
                 t = 1;
                 while (t < calibracionMaxIter[j]){
                     System.out.println("Iteración n° "+t);
-//                System.out.println("Sin mejora: "+sinMejora);
-//                if (sinMejora == Math.max(30, (int) (maxIter*0.3)))
-//                    break;
                     a = 2 * (1 - t/calibracionMaxIter[j]);
                     alphaWolf = new Lobo(poblacion.getAlphaWolf());
-                    poblacion.actualizarPosicion(a, lector, alpha, beta, eDisp);
+                    poblacion.actualizarPosicion(a, lector, alpha, beta, eDisp, porcentajeAceptacion);
+                    poblacion.seleccionarTresMejoresSoluciones(lector, alpha, beta, eDisp);
+                }
+                try {
+                    FileWriter pw = new FileWriter(Constante.PATH_OUTPUT_CSV + "calibracionMaxIter" + calibracionMaxIter[j] + ".csv",true);
+                    pw.append(Double.toString(poblacion.getAlphaWolf().getFitness()));
+                    pw.append(",");
+                    pw.append(Double.toString(poblacion.getBetaWolf().getFitness()));
+                    pw.append(",");
+                    pw.append(Double.toString(poblacion.getGammaWolf().getFitness()));
+                    pw.append("\n");
+                    pw.flush();
+                    pw.close();
+                }
+                catch (IOException e){
+
+                }
+            }
+        }
+    }
+
+    public void experimentacionNumeroSinMejora() {
+        String filenameTablas = "tablas_"+Constante.DATABASE_SELECTED+"_mysql.csv",
+                filenameColumnas = "columnas_"+Constante.DATABASE_SELECTED+"_mysql.csv",
+                filenameQuery = "query_"+Constante.DATABASE_SELECTED+".sql";
+
+        Lector lector = new Lector(Constante.PATH_INPUT_CSV + filenameTablas,
+                Constante.PATH_INPUT_CSV + filenameColumnas,
+                Path.of(Constante.PATH_INPUT_CSV + filenameQuery));
+        lector.leerArchivos();
+
+        int tamanoPoblacion = lector.getColumnasQuery().size() / 2, t = 1, maxIter = 500, sinMejora = 0, cantPruebas = 13;
+        float porcentajeAceptacion = 0.75f;
+        double alpha = 0.5, beta = 0.5, eDisp = 1000000, a;
+        Lobo alphaWolf;
+        int[] calibracionSinMejora = new int[]{250};
+
+        for (int j=0; j<calibracionSinMejora.length; j++){
+            for (int i=0; i<cantPruebas; i++){
+                System.out.println("Vuelta n° "+i);
+                Poblacion poblacion = new Poblacion(tamanoPoblacion);
+                poblacion.crearPoblacion(lector, eDisp, porcentajeAceptacion);
+                poblacion.seleccionarTresMejoresSoluciones(lector, alpha, beta, eDisp);
+                t = 1;
+                sinMejora = 0;
+                while (t < maxIter){
+                    System.out.println("Iteración n° "+t);
+                    System.out.println("Sin mejora: "+sinMejora);
+                    if (sinMejora == calibracionSinMejora[j])
+                        break;
+                    a = 2 * (1 - t/maxIter);
+                    alphaWolf = new Lobo(poblacion.getAlphaWolf());
+                    poblacion.actualizarPosicion(a, lector, alpha, beta, eDisp, porcentajeAceptacion);
                     poblacion.seleccionarTresMejoresSoluciones(lector, alpha, beta, eDisp);
                     if (alphaWolf.mismasColumnasSeleccionadas(poblacion.getAlphaWolf()))
                         sinMejora++;
@@ -147,7 +194,7 @@ public class AlgoritmoLoboGris {
                     t++;
                 }
                 try {
-                    FileWriter pw = new FileWriter(Constante.PATH_OUTPUT_CSV + "calibracionMaxIter" + calibracionMaxIter[j] + ".csv",true);
+                    FileWriter pw = new FileWriter(Constante.PATH_OUTPUT_CSV + "calibracionSinMejora" + calibracionSinMejora[j] + ".csv",true);
                     pw.append(Double.toString(poblacion.getAlphaWolf().getFitness()));
                     pw.append(",");
                     pw.append(Double.toString(poblacion.getBetaWolf().getFitness()));
