@@ -61,10 +61,10 @@ public class AlgoritmoLoboGris {
                 Path.of(Constante.PATH_INPUT_CSV + filenameQuery));
         lector.leerArchivos();
 
-        int tamanoPoblacion = lector.getColumnasQuery().size() / 2, t = 1, cantPruebas = 43;
+        int tamanoPoblacion = lector.getColumnasQuery().size() / 2, t = 1, cantPruebas = 50;
         float porcentajeAceptacion = 0.75f;
         double alpha = 0.5, beta = 0.5, eDisp = 1000000, a;
-        int[] calibracionMaxIter = new int[]{500};
+        int[] calibracionMaxIter = new int[]{600};
 
         for (int j=0; j<calibracionMaxIter.length; j++){
             for (int i=0; i<cantPruebas; i++){
@@ -107,7 +107,7 @@ public class AlgoritmoLoboGris {
                 Path.of(Constante.PATH_INPUT_CSV + filenameQuery));
         lector.leerArchivos();
 
-        int tamanoPoblacion = lector.getColumnasQuery().size() / 2, t = 1, maxIter = 500, sinMejora = 0, cantPruebas = 13;
+        int tamanoPoblacion = lector.getColumnasQuery().size() / 2, t = 1, maxIter = 500, sinMejora = 0, cantPruebas = 50;
         float porcentajeAceptacion = 0.75f;
         double alpha = 0.5, beta = 0.5, eDisp = 1000000, a;
         Lobo alphaWolf;
