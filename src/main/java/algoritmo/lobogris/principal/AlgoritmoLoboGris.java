@@ -32,7 +32,6 @@ public class AlgoritmoLoboGris {
         poblacion.seleccionarTresMejoresSoluciones(lector, alpha, beta, eDisp);
         while (t < maxIter){
             System.out.println("Iteración n° "+t);
-            System.out.println("Sin mejora: "+sinMejora);
             if (sinMejora == 100)
                 break;
             a = 2 * (1 - t/maxIter);

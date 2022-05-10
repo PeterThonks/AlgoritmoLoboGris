@@ -87,6 +87,8 @@ public class Lobo implements Comparable<Lobo> {
             }
             if (indexName != "IX_"){
                 indexName = indexName.substring(0, indexName.length() - 1);
+                if (indexName.length() >= 64)
+                    indexName = indexName.substring(0, 63);
                 indexColumns = indexColumns.substring(0, indexColumns.length() - 2);
                 createIndexSyntax += "CREATE INDEX " + indexName + " ON " + tablas.get(i).getNombreTabla() + " (" + indexColumns + ");";
                 dropIndexSyntax += "DROP INDEX " + indexName + " ON " + tablas.get(i).getNombreTabla() + ";";

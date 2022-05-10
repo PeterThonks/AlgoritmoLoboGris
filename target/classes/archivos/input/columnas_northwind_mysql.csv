@@ -1,4 +1,4 @@
-﻿nombreColumna,numeroTabla,numeroColumna,frecuenciaUso,cantidadBytes,esPKFK
+﻿nombreColumna,numeroTabla,numeroColumna,frecuenciaUso,cantidadBytes,esPK
 CategoryID,1,1,0.015267176,4,1
 CategoryName,1,2,0.038167939,17,0
 Description,1,3,0.001908397,16777215,0
