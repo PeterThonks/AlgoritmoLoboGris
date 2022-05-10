@@ -8,7 +8,7 @@ where track.Milliseconds >= 180 and track.UnitPrice = 0.99;
 
 select distinct
 	album.Title
-from customer
+from customer 
 inner join invoice on customer.CustomerId = invoice.CustomerId
 inner join invoiceline on invoice.InvoiceId= invoiceline.InvoiceId
 inner join track on invoiceline.TrackId = track.TrackId
