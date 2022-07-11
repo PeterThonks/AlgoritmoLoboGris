@@ -47,7 +47,7 @@ public class AlgoritmoLoboGris {
         poblacion.printMejorSolucion();
         endTime = (System.nanoTime() - startTime);
         System.out.println("Cantidad de iteraciones: " + t);
-        System.out.println("Tiempo total: " + TimeUnit.MINUTES.convert(endTime, TimeUnit.NANOSECONDS) + " minutos.");
+        System.out.println("Tiempo total: " + TimeUnit.SECONDS.convert(endTime, TimeUnit.NANOSECONDS) + " segundos.");
     }
 
     public void experimentacionNumeroIteraciones() {
@@ -205,6 +205,65 @@ public class AlgoritmoLoboGris {
                 catch (IOException e){
 
                 }
+            }
+        }
+    }
+
+    public void comparacion() {
+        String filenameTablas = "tablas_"+Constante.DATABASE_SELECTED+"_mysql.csv",
+                filenameColumnas = "columnas_"+Constante.DATABASE_SELECTED+"_mysql.csv",
+                filenameQuery = "query_"+Constante.DATABASE_SELECTED+".sql";
+
+        Lector lector = new Lector(Constante.PATH_INPUT_CSV + filenameTablas,
+                Constante.PATH_INPUT_CSV + filenameColumnas,
+                Path.of(Constante.PATH_INPUT_CSV + filenameQuery));
+        lector.leerArchivos();
+
+        int tamanoPoblacion = lector.getColumnasQuery().size() / 2, t = 1, maxIter = 500, sinMejora = 0;
+        float porcentajeAceptacion = 0.85f;
+        double alpha = 0, beta = 0, eDisp = 1000000, a;
+        long startTime, endTime;
+        Lobo alphaWolf;
+        for (int i=0; i<300; i++){
+            System.out.println("Vuelta n° "+i);
+            startTime = System.nanoTime();
+            Poblacion poblacion = new Poblacion(tamanoPoblacion);
+            poblacion.crearPoblacion(lector, eDisp, porcentajeAceptacion);
+            poblacion.seleccionarTresMejoresSoluciones(lector, alpha, beta, eDisp);
+            t = 1;
+            sinMejora = 0;
+            while (t < maxIter){
+                System.out.println("Iteración n° "+t);
+                if (sinMejora == 100)
+                    break;
+                a = 2 * (1 - t/maxIter);
+                alphaWolf = new Lobo(poblacion.getAlphaWolf());
+                poblacion.actualizarPosicion(a, lector, alpha, beta, eDisp, porcentajeAceptacion);
+                poblacion.seleccionarTresMejoresSoluciones(lector, alpha, beta, eDisp);
+                if (alphaWolf.mismasColumnasSeleccionadas(poblacion.getAlphaWolf()))
+                    sinMejora++;
+                else
+                    sinMejora = 0;
+                t++;
+            }
+            poblacion.printMejorSolucion();
+            endTime = (System.nanoTime() - startTime);
+            System.out.println("Cantidad de iteraciones: " + t);
+            System.out.println("Tiempo total: " + TimeUnit.SECONDS.convert(endTime, TimeUnit.NANOSECONDS) + " segundos.");
+            System.out.println("Fitness: " + poblacion.getAlphaWolf().getFitness());
+            try {
+                FileWriter pw = new FileWriter(Constante.PATH_OUTPUT_CSV + "experimentacionNumerica.csv",true);
+                pw.append(Double.toString(poblacion.getAlphaWolf().getFitness()));
+                pw.append(",");
+                pw.append(Integer.toString(t));
+                pw.append(",");
+                pw.append(Long.toString(TimeUnit.SECONDS.convert(endTime, TimeUnit.NANOSECONDS)));
+                pw.append("\n");
+                pw.flush();
+                pw.close();
+            }
+            catch (IOException e){
+
             }
         }
     }
